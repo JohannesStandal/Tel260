@@ -67,22 +67,28 @@ MORSE = {
 
 # Filter 
 def filter(array):
-    for i in range(len(array)):
+    # Simple mean filter
+    length = len(array)
+    filtered = np.zeros(length)
+
+    for i in range(length-2):
+        # Avarage of the current measured value, and the two previous measured values
         v0 = array[i]
         v1 = array[i+1]
+        v2 = array[i+2]
 
-        avg = (v0 + v1) / 2
+        avg = (v0 + v1 + v2) / 3
 
-        array[i] = avg
+        filtered[i+2] = avg
 
-    return array
+    return filtered
 
 # Load data
 df = pd.read_csv("LDR_5.1_data.csv")
 
 # Apply median filter
 adc = df["ADC"].to_numpy()
-filtered = medfilt(adc, kernel_size=51)
+filtered = filter(adc)
 
 # Binary classification
 binary = filtered >= THRESHOLD
