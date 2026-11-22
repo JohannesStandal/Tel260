@@ -65,6 +65,17 @@ MORSE = {
     ".----.": "'",
 }
 
+# Filter 
+def filter(array):
+    for i in range(len(array)):
+        v0 = array[i]
+        v1 = array[i+1]
+
+        avg = (v0 + v1) / 2
+
+        array[i] = avg
+
+    return array
 
 # Load data
 df = pd.read_csv("LDR_5.1_data.csv")
