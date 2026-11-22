@@ -1,0 +1,79 @@
+# =====================================================
+# Notes for installation in Ubuntu (revised 10.11.2026)
+# Tested in Ubuntu 24.04
+# Assumes that you have access to the binary file
+# TEL260_Ass2_Pt1_Light_Sensor_Message_NANOR4.bin
+# =====================================================
+
+# First it is necessary to have the arduino CLI installed.
+
+mkdir /home/alex/.local/bin
+curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~/.local/bin sh
+
+# Check the CLI version. 
+
+arduino-cli version
+
+# It should return something like:
+
+arduino-cli  Version: 1.5.1 Commit: 01f3d4f2b Date: 2026-06-05T10:22:17Z
+
+# If you have an error related to snap, then it means there is some conflict.
+
+sudo snap remove arduino-cli
+hash -r
+export PATH=$PATH:~/.local/bin
+
+# Now install the Nano R4 files:
+
+arduino-cli core install arduino:renesas_uno
+
+# Ensure that your user account has dialout privilege (probably it does if the
+# Arduino IDE works within your environment):
+
+sudo usermod -aG dialout $USER
+
+# Now list the attached boards
+
+arduino-cli board list
+
+# The output should look something like:
+
+Port         Protocol Type              Board Name      FQBN                       Core
+/dev/ttyACM0 serial   Serial Port (USB) Arduino Nano R4 arduino:renesas_uno:nanor4 arduino:renesas_uno
+
+# Now, put the Nano in DFU mode by quick double pressing the reset button on the board. If you succeed, the 
+# orange LED should pulse. Finally, assuming you are in the same directory as the binary file 
+# (TEL260_Ass2_Pt1_Light_Sensor_Message_NANOR4.bin), it should be possible to execute a command similar 
+# to the following (assuming the port is set correctly).
+
+arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:renesas_uno:nanor4 --input-file TEL260_Ass2_Pt1_Light_Sensor_Message_NANOR4.bin
+
+# You should have an output like the following:
+
+Copyright 2005-2009 Weston Schmidt, Harald Welte and OpenMoko Inc.
+Copyright 2010-2021 Tormod Volden and Stefan Schmidt
+This program is Free Software and has ABSOLUTELY NO WARRANTY
+Please report bugs to http://sourceforge.net/p/dfu-util/tickets/
+
+Opening DFU capable USB device...
+Device ID 2341:0374
+Device DFU version 0101
+Claiming USB DFU Interface...
+Setting Alternate Interface #0 ...
+Determining device status...
+DFU state(2) = dfuIDLE, status(0) = No error condition is present
+DFU mode device DFU version 0101
+Device returned transfer size 64
+Copying data from PC to DFU device
+Download	[=========================] 100%        94408 bytes
+Download done.
+DFU state(7) = dfuMANIFEST, status(0) = No error condition is present
+DFU state(2) = dfuIDLE, status(0) = No error condition is present
+Done!
+
+# If this fails for any reason, please contact me! 
+
+
+
+
