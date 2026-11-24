@@ -50,6 +50,10 @@ const int sensorPowerPin = A7;
 const int sensorPowerUpDelay = 200;
 bool powerDownSensor = true;
 
+// Same every 200uS (5kHZ) 
+const unsigned long SAMPLE_PERIOD_US = 200; // 10 kHz
+unsigned long lastSampleMicros = 0;
+
 // Sensor Measurements
 int ADCReading = 0;
 float currentTemp = 0.0;
@@ -169,11 +173,25 @@ void loop() {
   readLM35CZ();
 
   // Print values to Serial Monitor
-  Serial.print("ADC: ");
-  Serial.print(ADCReading);
-  Serial.print("\tCurrent: ");
-  Serial.print(currentTemp, 1);
-  Serial.println(" °C");  
+  // Serial.print("ADC: ");
+  // Serial.print(ADCReading);
+  // Serial.print("\tCurrent: ");
+  // Serial.print(currentTemp, 1);
+  // Serial.println(" °C");  
+
+  unsigned long now = micros();
+  unsigned long currentMillis = millis();
+
+  if (now - lastSampleMicros >= SAMPLE_PERIOD_US)
+  {
+      lastSampleMicros += SAMPLE_PERIOD_US;
+
+      // Read LDR
+      uint16_t adcValue = analogRead(ldrPin);
+
+      // Send raw ADC value as binary uint16_t
+      Serial.write((uint8_t*)&adcValue, sizeof(adcValue));
+  }
 
   if (enableTFT) {
     // Store reading
