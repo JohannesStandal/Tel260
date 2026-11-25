@@ -28,7 +28,7 @@
 #define TFT_DC   8
 #define TFT_RST  7
 #define TFT_PWR  A2
-bool enableTFT = true;
+bool enableTFT = false;
 
 // Color Definitions (16-bit RGB565)
 #define BLACK   0x0000
@@ -48,14 +48,14 @@ Arduino_GFX *tft = new Arduino_ILI9488_18bit(bus, TFT_RST, 3 /* rotation */, fal
 const int lm35czPin = A0;
 const int sensorPowerPin = A7;
 const int sensorPowerUpDelay = 200;
-bool powerDownSensor = true;
+bool powerDownSensor = false;
 
 // Same every 200uS (5kHZ) 
-const unsigned long SAMPLE_PERIOD_US = 200; // 10 kHz
+const unsigned long SAMPLE_PERIOD_US = 200; // 5 kHz
 unsigned long lastSampleMicros = 0;
 
 // Sensor Measurements
-int ADCReading = 0;
+uint16_t ADCReading = 0;
 float currentTemp = 0.0;
 
 // Chart Configuration (5 minutes = 300 points @ 1 sec sampling)
@@ -90,7 +90,7 @@ void updateSweepPlot();
 // ***************************************************************************************************
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(921600);
   while (!Serial && millis() < 3000);  
 
   // Set ADC resolution. Ensure that any transfer function uses the correct number of bits (2^n).
@@ -186,11 +186,11 @@ void loop() {
   {
       lastSampleMicros += SAMPLE_PERIOD_US;
 
-      // Read LDR
-      uint16_t adcValue = analogRead(ldrPin);
+      // Read LM35CZ
+      readLM35CZ();
 
       // Send raw ADC value as binary uint16_t
-      Serial.write((uint8_t*)&adcValue, sizeof(adcValue));
+      Serial.write((uint8_t*)&ADCReading, sizeof(ADCReading));
   }
 
   if (enableTFT) {
@@ -208,8 +208,8 @@ void loop() {
     chartHead = (chartHead + 1) % CHART_POINTS;
   }
 
-  if (powerDownSensor == false) { delay(1000); }
-  else { delay(1000 - sensorPowerUpDelay); }
+  // if (powerDownSensor == false) { delay(1000); }
+  // else { delay(1000 - sensorPowerUpDelay); }
 }
 
 // ***************************************************************************************************
