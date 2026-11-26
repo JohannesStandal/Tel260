@@ -84,7 +84,7 @@ def filter(array):
     return filtered
 
 # Load data
-df = pd.read_csv("LDR_5.1_data.csv")
+df = pd.read_csv("Ass1/data/LDR_5.1_data.csv")
 
 # Apply median filter
 adc = df["ADC"].to_numpy()
